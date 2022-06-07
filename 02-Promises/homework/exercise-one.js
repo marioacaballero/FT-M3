@@ -207,10 +207,18 @@ function problemF() {
     })
     .then((data) => {
       blue(data);
-      console.log("done");
+      // console.log("done");
     })
     .catch((err) => {
       magenta(new Error(err));
-      console.log("done");
-    });
+      // console.log("done");
+    })
+    .then(() =>
+      //como el catch devuelve una promesa puedo hacer un .then para colocar el done
+      console.log("done")
+    );
+  // tambien puedo hacer lo mismo con un .finally
+  //.finaly(() => console.log('done'))
+
+  //ATENCION --> TODOS los .then DEVUELVEN una PROMESA, si no tiene el "return" devuelve como valor: undefined
 }

@@ -59,7 +59,9 @@ function problemA() {
   Promise.all([promiseOne, promiseTwo]) //yo le coloco un arreglo de promesas que se lanzan en paralelo y una vez que todas se resuelven el .then las recibe como un arreglo de respuestas.
     //no importa cual se resuelve primero, el Promise.all se encarga de ubicarlas en su respectivo lugar
     .then((values) => {
-      blue(values);
+      //como los tengo que devolver por separado le hago a cada elemento el console.log  (que seria la funcion blue)
+      blue(values[0]);
+      blue(values[1]);
       console.log("done");
     });
 }
@@ -95,10 +97,10 @@ function problemB() {
 
   // promise version
   // ???
-  const arrPromises = filenames.map((fn) => promisifiedReadFile(fn));
+  const arrPromises = filenames.map(promisifiedReadFile); //como la funcion tiene un solo argumento puedo pasarle directamente la funcion
 
   Promise.all(arrPromises).then((values) => {
-    blue(values);
+    values.forEach((poema) => blue(poema)); //al igual que en el anterior, necesito hacerle a cada uno el console.log, por eso uso un forEach
     console.log("done");
   });
 }
@@ -119,22 +121,34 @@ function problemC() {
   });
 
   // callback version
-  async.eachSeries(
-    filenames,
-    function (filename, eachDone) {
-      readFile(filename, function (err, stanza) {
-        console.log("-- C. callback version --");
-        blue(stanza);
-        eachDone();
-      });
-    },
-    function (err) {
-      console.log("-- C. callback version done --");
-    }
-  );
+  // async.eachSeries(
+  //   filenames,
+  //   function (filename, eachDone) {
+  //     readFile(filename, function (err, stanza) {
+  //       console.log("-- C. callback version --");
+  //       blue(stanza);
+  //       eachDone();
+  //     });
+  //   },
+  //   function (err) {
+  //     console.log("-- C. callback version done --");
+  //   }
+  // );
 
   // promise version
   // ???
+  filenames
+    .reduce((promise, path) => {
+      return promise.then((data) => {
+        if (data) blue(data);
+
+        return promisifiedReadFile(path);
+      });
+    }, Promise.resolve()) //Promise.resolve() para tener una respuesta sincronica y poder encadenar los .then
+    .then((dataFinal) => blue(dataFinal)) //con este ultimo tomo el ultimo path y lo concateno. Esto es debido al metodo reduce.
+    .finally(() => console.log("done"));
+
+  //Esto se resolveria de la siguiente manera --> Promise.then().then().then().then() para poder ir esperando a que se resuelva la anterior antes de seguir con la nueva.
 }
 
 function problemD() {
@@ -155,24 +169,45 @@ function problemD() {
   filenames[randIdx] = "wrong-file-name-" + (randIdx + 1) + ".txt";
 
   // callback version
-  async.eachSeries(
-    filenames,
-    function (filename, eachDone) {
-      readFile(filename, function (err, stanza) {
-        console.log("-- D. callback version --");
-        if (err) return eachDone(err);
-        blue(stanza);
-        eachDone();
-      });
-    },
-    function (err) {
-      if (err) magenta(new Error(err));
-      console.log("-- D. callback version done --");
-    }
-  );
+  // async.eachSeries(
+  //   filenames,
+  //   function (filename, eachDone) {
+  //     readFile(filename, function (err, stanza) {
+  //       console.log("-- D. callback version --");
+  //       if (err) return eachDone(err);
+  //       blue(stanza);
+  //       eachDone();
+  //     });
+  //   },
+  //   function (err) {
+  //     if (err) magenta(new Error(err));
+  //     console.log("-- D. callback version done --");
+  //   }
+  // );
 
   // promise version
   // ???
+  filenames
+    .reduce((promise, path) => {
+      return promise.then(
+        (data) => {
+          if (data) blue(data);
+
+          return promisifiedReadFile(path);
+        }
+        /*(error) => {
+          magenta(new Error(error));
+          return promisifiedReadFile(path); //manejo el error promesa a promesa, de esta manera si una falla puedo seguir leyendo las otras. Es decir, me salgo de la serie con el error, la saltea y si se resuelve el error me vuelvo a meter a la serie.
+          // si utilizo un .cath() directamente salteo todo y me voy hasta el catch cuando tenga un error.
+        }*/
+      );
+    }, Promise.resolve())
+    .then(
+      (dataFinal) => blue(dataFinal)
+      /*(error) => magenta(new Error(error))*/
+    )
+    .catch((err) => magenta(new Error(err)))
+    .finally(() => console.log("done"));
 }
 
 function problemE() {
