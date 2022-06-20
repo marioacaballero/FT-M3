@@ -133,6 +133,8 @@ const idDelete = (req, res) => {
     });
   }
 
+  //posts.splice(posts.indexOf(post), 1) ---> esto seria sin necesidad de usar un filter, por lo tanto puedo dejar el const ya que no modifico la referencia
+
   const idDelete = posts.filter((post) => post.id !== id);
   posts = idDelete;
 
@@ -156,6 +158,7 @@ const authorDelete = (req, res) => {
     });
   }
 
+  // authorFilter.forEach((p) => posts.splice(posts.indexOf(p), 1)); ---> otra forma de hacerlo sin modificar la referencia del array
   const newPosts = posts.filter((post) => post.author !== author);
 
   posts = newPosts;

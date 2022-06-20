@@ -25,3 +25,16 @@ server.delete("/", controller.idDelete);
 
 
 module.exports = server;
+
+
+/*
+Estructura de una API rest full
+
+GET         /post
+POST        /post
+GET         /post/:id
+PUT         /post/:id           el metodo put deberia traer todos los recursos del elemento (para sustituirlos). Tambien puede sustituir una sola propiedad al igual que el metodo patch
+PATCH       /post/:id           el metodo patch sustituye una de las propiedades
+DELETE      /post/:id
+
+*/
